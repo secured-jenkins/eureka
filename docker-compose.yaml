@@ -23,12 +23,14 @@ services:
       - sqlTwodata:/var/lib/mysql
 
   eurekaServer:
-    image: hasanalrimawi/eureka-ci:1
+    image: hasanalrimawi/eureka-ci:latest
+    container_name: eurekaServer
     ports:
       - 8761:8761
 
   myGateway:
-    image: hasanalrimawi/gateway-ci:2
+    image: hasanalrimawi/gateway-ci:latest
+    container_name: myGateway
     ports:
       - 8083:8083
     depends_on:
@@ -44,8 +46,7 @@ services:
     depends_on:
       - eurekaServer
       - sqlServerVV
-  
-
+      - myGateway
   
   carsRegistry:
     image: hasanalrimawi/receiver-ci:latest
@@ -57,6 +58,7 @@ services:
     depends_on:
       - eurekaServer
       - sqlTwoo
+      - myGateway
 
   rabbit:
     image: rabbitmq:3-management
@@ -72,3 +74,4 @@ services:
 volumes:
   mysqlServerVdata:
   sqlTwodata:
+  
