@@ -1,0 +1,74 @@
+version: '3.8'
+services:
+  sqlServerVV:
+    image: mysql
+    container_name: sqlServerVV
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=guest
+      - MYSQL_DATABASE=jwt_auth
+    volumes:
+      - mysqlServerVdata:/var/lib/mysql
+  
+  sqlTwoo:
+    image: mysql
+    container_name: sqlTwoo
+    ports:
+      - 3307:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=guest
+      - MYSQL_DATABASE=completer
+    volumes:
+      - sqlTwodata:/var/lib/mysql
+
+  eurekaServer:
+    image: hasanalrimawi/eureka-ci:1
+    ports:
+      - 8761:8761
+
+  myGateway:
+    image: hasanalrimawi/gateway-ci:2
+    ports:
+      - 8083:8083
+    depends_on:
+      - eurekaServer
+
+  empsManagement:
+    image: hasanalrimawi/sender-ci:latest
+    container_name: empsManagement
+    ports:
+      - 8081:8081
+    environment:
+      - SERVER_NAME=sqlServerVV
+    depends_on:
+      - eurekaServer
+      - sqlServerVV
+  
+
+  
+  carsRegistry:
+    image: hasanalrimawi/receiver-ci:latest
+    container_name: carsRegistry
+    ports:
+      - 8085:8085
+    environment:
+      - SERVER_NAME=sqlTwoo
+    depends_on:
+      - eurekaServer
+      - sqlTwoo
+
+  rabbit:
+    image: rabbitmq:3-management
+    container_name: rabbit
+    ports:
+      - 8080:15672
+      - 5672:5672
+    environment:
+      - hostname=rabbit
+
+
+
+volumes:
+  mysqlServerVdata:
+  sqlTwodata:
